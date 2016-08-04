@@ -1,18 +1,18 @@
 # MIDI and PatchMaster constants.
 module PM
 
-  # Define MIDI note names C0 - B10
-  (0..10).each { |oct|
-    {:C => 0, :D => 2, :E => 4, :F => 5, :G => 7, :A => 9, :B => 11}.each { |note,val|
-      base = (oct+1) * 12 + val
-      eval <<EOS
-#{note}#{oct} = #{base}
-#{note}f#{oct} = #{base - 1}
-#{note}b#{oct} = #{base - 1}
-#{note}s#{oct} = #{base + 1}
-EOS
-    }
-  }
+#   # Define MIDI note names C0 - B10
+#   (0..10).each { |oct|
+#     {:C => 0, :D => 2, :E => 4, :F => 5, :G => 7, :A => 9, :B => 11}.each { |note,val|
+#       base = (oct+1) * 12 + val
+#       eval <<EOS
+# #{note}#{oct} = #{base}
+# #{note}f#{oct} = #{base - 1}
+# #{note}b#{oct} = #{base - 1}
+# #{note}s#{oct} = #{base + 1}
+# EOS
+#     }
+#   }
 
   # Number of MIDI channels
   MIDI_CHANNELS = 16

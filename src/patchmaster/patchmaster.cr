@@ -1,9 +1,5 @@
-require 'singleton'
-require 'delegate'
-require 'patchmaster/sorted_song_list'
-require 'patchmaster/cursor'
-
-module PM
+require "./sorted_song_list"
+require "./cursor"
 
 # Global behavior: master list of songs, list of song lists, stuff like
 # that.
@@ -14,22 +10,20 @@ module PM
 #   PatchMaster.instance.start
 #   # ...when you're done
 #   PatchMaster.instance.stop
-class PatchMaster < SimpleDelegator
+class PatchMaster
 
-  DEBUG_FILE = '/tmp/pm_debug.txt'
+  DEBUG_FILE = "/tmp/pm_debug.txt"
 
-  include Singleton
-
-  attr_reader :inputs, :outputs, :all_songs, :song_lists
-  attr_reader :messages, :message_bindings, :code_bindings
-  attr_accessor :use_midi
-  alias_method :use_midi?, :use_midi
-  attr_accessor :gui
-  attr_reader :loaded_file
+  property inputs, outputs, all_songs, song_lists    # read-only
+  property messages, message_bindings, code_bindings # read-only
+  property use_midi
+  # alias_method use_midi?, use_midi
+  property gui
+  property loaded_file          # read-only
 
   # A Cursor to which we delegate incoming position methods (#song_list,
   # #song, #patch, #next_song, #prev_patch, etc.)
-  attr_reader :cursor
+  property :cursor              # read-only
 
   def initialize
     @running = false
@@ -37,8 +31,8 @@ class PatchMaster < SimpleDelegator
     super(@cursor)
     @use_midi = true
     @gui = nil
-    @message_bindings = {}
-    @code_bindings = {}
+    @message_bindings = {} of Char => String
+    @code_bindings = {} of Char => CodeKey
 
     if $DEBUG
       @debug_file = File.open(DEBUG_FILE, 'a')
@@ -68,14 +62,14 @@ class PatchMaster < SimpleDelegator
     elsif @cursor.patch
       @cursor.patch.start
     end
-  rescue => ex
+  rescue ex
     raise("error loading #{file}: #{ex}\n" + caller.join("\n"))
   end
 
   def save(file)
     DSL.new.save(file)
     @loaded_file = file
-  rescue => ex
+  rescue ex
     raise("error saving #{file}: #{ex}" + caller.join("\n"))
   end
 
@@ -90,12 +84,12 @@ class PatchMaster < SimpleDelegator
   # Initializes the cursor and all data.
   def init_data
     @cursor.clear
-    @inputs = []
-    @outputs = []
-    @song_lists = []
-    @all_songs = SortedSongList.new('All Songs')
+    @inputs = [] of PM::Instrument::InputInstrument
+    @outputs = [] of PM::Instrument::OutputInstrument
+    @song_lists = [] of PM::SongList
+    @all_songs = SortedSongList.new("All Songs")
     @song_lists << @all_songs
-    @messages = {}
+    @messages = {} of Name => typeof([] of Int8)
   end
 
   # If +init_cursor+ is +true+ (the default), initializes current song list,
@@ -158,7 +152,7 @@ class PatchMaster < SimpleDelegator
   def panic(individual_notes=false)
     debug("panic(#{individual_notes})")
     @outputs.each do |out|
-      buf = []
+      buf = [] of UInt8
       MIDI_CHANNELS.times do |chan|
         buf += [CONTROLLER + chan, CM_ALL_NOTES_OFF, 0]
         if individual_notes
@@ -180,5 +174,4 @@ class PatchMaster < SimpleDelegator
   def close_debug_file
     @debug_file.close if @debug_file
   end
-end
 end

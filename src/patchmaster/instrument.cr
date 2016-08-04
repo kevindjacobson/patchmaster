@@ -1,11 +1,7 @@
-require 'midi-eye'
-
 # Ports are UniMIDI inputs or outputs.
-module PM
-
 class Instrument
 
-  attr_reader :sym, :name, :port_num, :port
+  property sym, name, port_num, port
 
   def initialize(sym, name, port_num, port)
     @sym, @name, @port_num, @port = sym, name, port_num, port
@@ -18,14 +14,14 @@ end
 # +@connections+. When it ends, it removes itself.
 class InputInstrument < Instrument
 
-  attr_accessor :connections, :triggers
-  attr_reader :listener
+  property connections, triggers
+  property listener             # read-only
 
   # If +port+ is nil (the normal case), creates either a real or a mock port
   def initialize(sym, name, port_num, use_midi=true)
     super(sym, name, port_num, input_port(port_num, use_midi))
-    @connections = []
-    @triggers = []
+    @connections = [] of Connection
+    @triggers = [] of Trigger
     @listener = nil
   end
 
@@ -42,7 +38,7 @@ class InputInstrument < Instrument
     PatchMaster.instance.debug("instrument #{name} start")
     @port.clear_buffer
     @listener = MIDIEye::Listener.new(@port).listen_for { |event| midi_in(event[:message].to_bytes) }
-    @listener.run(:background => true)
+    @listener.run({:background => true})
   end
 
   def stop
@@ -60,9 +56,7 @@ class InputInstrument < Instrument
     @connections.each { |conn| conn.midi_in(bytes) }
   end
 
-  private
-
-  def input_port(port_num, use_midi=true)
+  private def input_port(port_num, use_midi=true)
     if use_midi
       UniMIDI::Input.all[port_num].open
     else
@@ -82,9 +76,7 @@ class OutputInstrument < Instrument
     @port.puts bytes
   end
 
-  private
-
-  def output_port(port_num, use_midi)
+  private def output_port(port_num, use_midi)
     if use_midi
       UniMIDI::Output.all[port_num].open
     else
@@ -95,7 +87,7 @@ end
 
 class MockInputPort
 
-  attr_reader :name
+  property name                 # read-only
 
   # For MIDIEye::Listener
   def self.is_compatible?(input)
@@ -108,7 +100,7 @@ class MockInputPort
   end
 
   def gets
-    [{:data => [], :timestamp => 0}]
+    [{:data => [] of UInt8, :timestamp => 0}]
   end
 
   def poll
@@ -119,13 +111,12 @@ class MockInputPort
   end
 
   # add this class to the Listener class' known input types
-  MIDIEye::Listener.input_types << self
-
+  # MIDIEye::Listener.input_types << self
 end
 
 class MockOutputPort
 
-  attr_reader :name
+  property name                 # read-only
 
   def initialize(port_num)
     @name = "MockOutputPort #{port_num}"
@@ -133,5 +124,4 @@ class MockOutputPort
 
   def puts(data)
   end
-end
 end

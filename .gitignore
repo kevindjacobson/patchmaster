@@ -1,5 +1,7 @@
 .byebug_history
-.rbenv-version
-.ruby-version
 html
 pkg
+/doc/
+/libs/
+/.crystal/
+/.shards/

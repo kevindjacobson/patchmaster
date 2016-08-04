@@ -1,12 +1,10 @@
-module PM
-
 class Patch
 
-  attr_accessor :name, :connections, :start_bytes, :stop_bytes
+  property name, connections, start_bytes, stop_bytes
 
   def initialize(name, start_bytes=nil, stop_bytes=nil)
     @name, @start_bytes, @stop_bytes = name, start_bytes, stop_bytes
-    @connections = []
+    @connections = [] of Connection
     @running = false
   end
 
@@ -37,5 +35,4 @@ class Patch
       @connections.each { |conn| conn.stop(@stop_bytes) }
     end
   end
-end
 end

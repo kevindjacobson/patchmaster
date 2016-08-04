@@ -1,0 +1,7 @@
+name: patchmaster
+version: 1.2.1
+
+authors:
+  - Jim Menard <jim@jimmenard.com>
+
+license: MIT

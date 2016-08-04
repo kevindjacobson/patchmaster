@@ -1,6 +1,4 @@
-require 'patchmaster/consts'
-
-module PM
+require "./consts"
 
 # A Connection connects an InputInstrument to an OutputInstrument. Whenever
 # MIDI data arrives at the InputInstrument it is optionally modified or
@@ -8,15 +6,17 @@ module PM
 # OutputInstrument.
 class Connection
 
-  attr_accessor :input, :input_chan, :output, :output_chan,
-    :bank, :pc_prog, :zone, :xpose, :filter
+  property input, input_chan, output, output_chan,
+    bank, pc_prog, zone, xpose, filter
 
   # If input_chan is nil than all messages from input will be sent to
   # output.
   #
   # All channels (input_chan, output_chan, etc.) are 1-based here but are
   # turned into 0-based channels for later use.
-  def initialize(input, input_chan, output, output_chan, filter=nil, opts={})
+  def initialize(input, input_chan, output, output_chan, filter=nil,
+                 pc_prog=nil, bank=nil, bank_msb=nil, bank_lsb=nil,
+                 zone=nil, xpose=nil)
     @input, @input_chan, @output, @output_chan, @filter = input, input_chan, output, output_chan, filter
     @bank, @pc_prog, @zone, @xpose = opts[:bank], opts[:pc_prog], opts[:zone], opts[:xpose]
 
@@ -25,7 +25,7 @@ class Connection
   end
 
   def start(start_bytes=nil)
-    bytes = []
+    bytes = [] of UInt8
     bytes += start_bytes if start_bytes
     # Bank select uses MSB if we're only sending one byte
     bytes += [CONTROLLER + @output_chan, CC_BANK_SELECT+32, @bank] if @bank
@@ -110,17 +110,15 @@ class Connection
 
   def note_num_to_name(n)
     oct = (n / 12) - 1
-    note = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'][n % 12]
+    note = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"][n % 12]
     "#{note}#{oct}"
   end
 
   def to_s
-    str = "#{@input.name} ch #{@input_chan ? @input_chan+1 : 'all'} -> #{@output.name} ch #{@output_chan+1}"
+    str = "#{@input.name} ch #{@input_chan ? @input_chan+1 : "all"} -> #{@output.name} ch #{@output_chan+1}"
     str << "; pc #@pc_prog" if pc?
     str << "; xpose #@xpose" if @xpose
     str << "; zone #{note_num_to_name(@zone.begin)}..#{note_num_to_name(@zone.end)}" if @zone
     str
   end
 end
-
-end # PM

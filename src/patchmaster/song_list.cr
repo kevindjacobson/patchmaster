@@ -1,13 +1,11 @@
-module PM
-
 # A SongList is a list of Songs.
 class SongList
 
-  attr_accessor :name, :songs
+  property name, songs
 
-  def initialize(name)
+  def initialize(@name)
     @name = name
-    @songs = []
+    @songs = [] of Song
   end
 
   def <<(song)
@@ -21,8 +19,23 @@ class SongList
     @songs.detect { |s| s.name =~ name_regex }
   end
 
-  %w(first prev curr next last).each do |dir|
-    instance_eval("def #{dir}_patch; @songs.curr.#{dir}_patch; end")
+  def first_pach
+    @songs.curr.first_patch
   end
-end
+
+  def prev_pach
+    @songs.curr.prev_patch
+  end
+
+  def curr_pach
+    @songs.curr.curr_patch
+  end
+
+  def next_pach
+    @songs.curr.next_patch
+  end
+
+  def last_pach
+    @songs.curr.last_patch
+  end
 end

@@ -1,5 +1,3 @@
-module PM
-
 # A Trigger executes code when it sees a particular array of bytes.
 # Instruments have zero or more triggers.
 #
@@ -7,10 +5,9 @@ module PM
 # well.
 class Trigger
 
-  attr_accessor :bytes, :code_chunk
+  property bytes, code_chunk
 
-  def initialize(bytes, code_chunk)
-    @bytes, @code_chunk = bytes, code_chunk
+  def initialize(@bytes, @code_chunk)
   end
 
   def method_missing(sym, *args)
@@ -27,7 +24,7 @@ class Trigger
   end
 
   def to_s
-    "#{@bytes.inspect} => #{(@code_chunk.text || '# no block text found').gsub(/\n\s*/, '; ')}"
+    "#{@bytes.inspect} => #{(@code_chunk.text || "# no block text found").gsub(/\n\s*/, "; ")}"
   end
 end
-end
+

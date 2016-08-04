@@ -1,11 +1,9 @@
-module PM
-
 # A PM::Cursor knows the current PM::SongList, PM::Song, and PM::Patch, how
 # to move between songs and patches, and how to find them given name
 # regexes.
 class Cursor
 
-  attr_reader :song_list, :song, :patch
+  property song_list, song, patch
 
   def initialize(pm)
     @pm = pm
@@ -161,7 +159,7 @@ class Cursor
         addcost = thisrow[y - 1] + 1
         subcost = oneago[y - 1] + ((seq1[x] != seq2[y]) ? 1 : 0)
         thisrow[y] = [delcost, addcost, subcost].min
-        if (x > 0 and y > 0 and seq1[x] == seq2[y-1] and seq1[x-1] == seq2[y] and seq1[x] != seq2[y])
+        if (x > 0 && y > 0 && seq1[x] == seq2[y-1] && seq1[x-1] == seq2[y] && seq1[x] != seq2[y])
           thisrow[y] = [thisrow[y], twoago[y-2] + 1].min
         end
       end
@@ -169,5 +167,4 @@ class Cursor
     return thisrow[seq2.size - 1]
   end
 
-end
 end

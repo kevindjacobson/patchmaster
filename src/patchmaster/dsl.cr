@@ -1,7 +1,4 @@
-require 'unimidi'
-require_relative './code_chunk'
-
-module PM
+require "./code_chunk"
 
 # Implements a DSL for describing a PatchMaster setup.
 class DSL
@@ -15,12 +12,12 @@ class DSL
 
   # Initialize state used for reading.
   def init
-    @inputs = {}
-    @outputs = {}
-    @triggers = []
-    @filters = []
-    @code_keys = []
-    @songs = {}                 # key = name, value = song
+    @inputs = [] of PM::Instrument::InputInstrument
+    @outputs = [] of PM::Instrument::OutputInstrument
+    @triggers = [] of Trigger
+    @filters = [] of Filter
+    @code_keys = [] of CodeKey
+    @songs = {} of String => Song # key = name, value = song
   end
 
   def load(file)
@@ -38,10 +35,10 @@ class DSL
     input = InputInstrument.new(sym, name, port_num, @pm.use_midi?)
     @inputs[sym] = input
     @pm.inputs << input
-  rescue => ex
+  rescue ex
     raise "input: error creating input instrument \"#{name || sym}\" on input port #{port_num}: #{ex}"
   end
-  alias_method :inp, :input
+  # alias_method :inp, :input
 
   def output(port_num, sym, name=nil)
     raise "output: two outputs can not have the same symbol (:#{sym})" if @outputs[sym]
@@ -49,11 +46,11 @@ class DSL
     output = OutputInstrument.new(sym, name, port_num, @pm.use_midi?)
     @outputs[sym] = output
     @pm.outputs << output
-  rescue => ex
+  rescue ex
     raise "output: error creating output instrument \"#{name || sym}\" on output port #{port_num}: #{ex}"
   end
-  alias_method :out, :output
-  alias_method :outp, :output
+  # alias_method :out, :output
+  # alias_method :outp, :output
 
   def message(name, bytes)
     @pm.messages[name.downcase] = [name, bytes]
@@ -134,8 +131,8 @@ class DSL
     @patch << @conn
     yield @conn if block_given?
   end
-  alias_method :conn, :connection
-  alias_method :c, :connection
+  # alias_method :conn, :connection
+  # alias_method :c, :connection
 
   # If only +bank_or_prog+ is specified, then it's a program change. If
   # both, then it's bank number.
@@ -147,7 +144,7 @@ class DSL
       @conn.pc_prog = bank_or_prog
     end
   end
-  alias_method :pc, :prog_chg
+  # alias_method :pc, :prog_chg
 
   # If +start_or_range+ is a Range, use that. Else either or both params may
   # be nil.
@@ -160,19 +157,19 @@ class DSL
                          ((start_or_range || 0) .. (stop || 127))
                        end
   end
-  alias_method :z, :zone
+  # alias_method :z, :zone
 
   def transpose(xpose)
     @conn.xpose = xpose
   end
-  alias_method :xpose, :transpose
-  alias_method :x, :transpose
+  # alias_method :xpose, :transpose
+  # alias_method :x, :transpose
 
   def filter(&block)
     @conn.filter = Filter.new(CodeChunk.new(block))
     @filters << @conn.filter
   end
-  alias_method :f, :filter
+  # alias_method :f, :filter
 
   def song_list(name, song_names)
     sl = SongList.new(name)
@@ -266,7 +263,7 @@ class DSL
   end
 
   def save_connection(f, conn)
-    in_chan = conn.input_chan ? conn.input_chan + 1 : 'nil'
+    in_chan = conn.input_chan ? conn.input_chan + 1 : "nil"
     out_chan = conn.output_chan + 1
     f.puts "    conn :#{conn.input.sym}, #{in_chan}, :#{conn.output.sym}, #{out_chan} do"
     f.puts "      prog_chg #{conn.pc_prog}" if conn.pc?
@@ -289,10 +286,8 @@ class DSL
 
   # ****************************************************************
 
-  private
-
   # Translate symbol like :f1 to the proper function key value.
-  def to_binding_key(key_or_sym)
+  private def to_binding_key(key_or_sym)
     if key_or_sym.is_a?(Symbol) && PM::Main::FUNCTION_KEY_SYMBOLS[key_or_sym]
       key_or_sym = PM::Main::FUNCTION_KEY_SYMBOLS[key_or_sym]
     end
@@ -300,7 +295,7 @@ class DSL
 
   # Translate function key values into symbol strings and other keys into
   # double-quoted strings.
-  def to_save_key(key)
+  private def to_save_key(key)
     if PM::Main::FUNCTION_KEY_SYMBOLS.value?(key)
       PM::Main::FUNCTION_KEY_SYMBOLS.key(key)
     else
@@ -308,21 +303,21 @@ class DSL
     end
   end
 
-  def read_triggers(contents)
-    read_block_text('trigger', @triggers, contents)
+  private def read_triggers(contents)
+    read_block_text("trigger", @triggers, contents)
   end
 
-  def read_filters(contents)
-    read_block_text('filter', @filters, contents)
+  private def read_filters(contents)
+    read_block_text("filter", @filters, contents)
   end
 
-  def read_code_keys(contents)
-    read_block_text('code_key', @code_keys, contents)
+  private def read_code_keys(contents)
+    read_block_text("code_key", @code_keys, contents)
   end
 
   # Extremely simple block text reader. Relies on indentation to detect end
   # of code block.
-  def read_block_text(name, containers, contents)
+  private def read_block_text(name, containers, contents)
     i = -1
     in_block = false
     block_indentation = nil
@@ -364,5 +359,4 @@ class DSL
     end
   end
 
-end
 end

@@ -1,4 +1,4 @@
-module PM
+require "./song_list"
 
 class SortedSongList < SongList
 
@@ -11,5 +11,4 @@ class SortedSongList < SongList
     end
   end
 
-end
 end
