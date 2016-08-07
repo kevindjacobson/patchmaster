@@ -1,7 +1,8 @@
+require "option_parser"
 require "./patchmaster/*"
 require "./patchmaster/curses/main"
 require "./patchmaster/irb/irb"
-require "./patchmaster/web/sinatra_app"
+require "./patchmaster/web/web"
 
 # usage: patchmaster [-l] [-v] [-n] [-i] [-w] [-p port] [-d] [pm_file]
 #
@@ -30,9 +31,8 @@ module Patchmaster
   use_midi = true
   gui = :curses
   port = nil
-  OptionParser.new do |opts|
+  OptionParser.parse! do |opts|
     opts.banner = "usage: patchmaster [options] [pm_file]"
-    opts.on("-d", "--debug", "Turn on debug mode") { $DEBUG = true }
     opts.on("-l", "--list", "List MIDI inputs and outputs and exit") do
       system("unimidi list")
       exit 0
@@ -42,27 +42,25 @@ module Patchmaster
     opts.on("-w", "--web", "Use a Web browser GUI") { gui = :web }
     opts.on("-p", "--port PORT", "Web browser GUI port number") { |opt| port = opt.to_i }
     opts.on("-v", "--version", "Show version number and exit") do
-      version_line = IO.readlines(File.join(File.dirname(__FILE__), "../Rakefile")).grep(/GEM_VERSION\s*=/).first
-      version_line =~ /(\d+\.\d+\.\d+)/
-      puts "patchmaster #{$1}"
+      puts "patchmaster #{Patchmaster::VERSION}"
       exit 0
     end
-    opts.on_tail("-h", "-?", "--help", "Show this message") do
+    opts.on("-h", "--help", "Show this message") do
       puts opts
       exit 0
     end
-  end.parse!(ARGV)
+  end
 
-  pm = PM::PatchMaster.instance
+  pm = PatchMaster.instance
   pm.use_midi = use_midi
   pm.load(ARGV[0]) if ARGV[0]
   case gui
   when :curses
-    pm.gui = PM::Main.instance
+    pm.gui = Main.instance
   when :irb
-    pm.gui = PM::IRB.instance
+    pm.gui = IRB.instance
   when :web
-    app = PM::SinatraApp.instance
+    app = Web.instance
     app.port = port if port
     pm.gui = app
   end

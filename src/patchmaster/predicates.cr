@@ -11,48 +11,48 @@ class Integer
   end
 
   def channel?
-    self >= PM::NOTE_OFF && self < PM::SYSEX
+    self >= NOTE_OFF && self < SYSEX
   end
   # alias_method :chan?, :channel?
 
   def note_on?
-    (self & 0xf0) == PM::NOTE_ON
+    (self & 0xf0) == NOTE_ON
   end
   # alias_method :on?, :note_on?
 
   def note_off?
-    (self & 0xf0) == PM::NOTE_OFF
+    (self & 0xf0) == NOTE_OFF
   end
   # alias_method :off?, :note_off?
 
   def poly_pressure?
-    (self & 0xf0) == PM::POLY_PRESSURE
+    (self & 0xf0) == POLY_PRESSURE
   end
   # alias_method :poly_press?, :poly_pressure?
 
   # Returns true if self is a status byte for a message that targets a note
   # (note on, note off, or poly pressure).
   def note?
-    self >= PM::NOTE_OFF && self < PM::CONTROLLER
+    self >= NOTE_OFF && self < CONTROLLER
   end
 
   def controller?
-    (self & 0xf0) == PM::CONTROLLER
+    (self & 0xf0) == CONTROLLER
   end
   # alias_method :ctrl?, :controller?
 
   def program_change?
-    (self & 0xf0) == PM::PROGRAM_CHANGE
+    (self & 0xf0) == PROGRAM_CHANGE
   end
   # alias_method :pc?, :program_change?
 
   def pitch_bend?
-    (self & 0xf0) == PM::PITCH_BEND
+    (self & 0xf0) == PITCH_BEND
   end
   # alias_method :pb?, :pitch_bend?
 
   def system?
-    self >= PM::SYSEX && self <= PM::EOX
+    self >= SYSEX && self <= EOX
   end
   # alias_method :sys?, :system?
 

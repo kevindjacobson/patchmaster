@@ -1,9 +1,6 @@
-require 'patchmaster/curses/pm_window'
-
-module PM
 class PatchWindow < PmWindow
 
-  attr_reader :patch
+  property patch                # read-only
 
   def patch=(patch)
     @title = patch ? patch.name : nil
@@ -26,29 +23,29 @@ class PatchWindow < PmWindow
   def draw_headers
     @win.attron(A_REVERSE) {
       str = " Input          Chan | Output         Chan | Prog | Zone      | Xpose | Filter"
-      str << ' ' * (@win.maxx - 2 - str.length)
+      str << " " * (@win.maxx - 2 - str.length)
       @win.addstr(str)
     }
   end
 
   def draw_connection(connection)
-    str =  " #{'%16s' % connection.input.name}"
-    str << " #{connection.input_chan ? ('%2d' % (connection.input_chan+1)) : '  '} |"
-    str << " #{'%16s' % connection.output.name}"
-    str << " #{'%2d' % (connection.output_chan+1)} |"
+    str =  " #{"%16s" % connection.input.name}"
+    str << " #{connection.input_chan ? ("%2d" % (connection.input_chan+1)) : "  "} |"
+    str << " #{"%16s" % connection.output.name}"
+    str << " #{"%2d" % (connection.output_chan+1)} |"
     str << if connection.pc?
-             "  #{'%3d' % connection.pc_prog} |"
+             "  #{"%3d" % connection.pc_prog} |"
            else
              "      |"
            end
     str << if connection.zone
-             " #{'%3s' % connection.note_num_to_name(connection.zone.begin)}" +
-             " - #{'%3s' % connection.note_num_to_name(connection.zone.end)} |"
+             " #{"%3s" % connection.note_num_to_name(connection.zone.begin)}" +
+             " - #{"%3s" % connection.note_num_to_name(connection.zone.end)} |"
            else
-             '           |'
+             "           |"
            end
     str << if connection.xpose && connection.xpose != 0
-             "   #{connection.xpose < 0 ? '' : ' '}#{'%2d' % connection.xpose.to_i} |"
+             "   #{connection.xpose < 0 ? "" : " "}#{"%2d" % connection.xpose.to_i} |"
            else
              "       |"
            end
@@ -57,8 +54,7 @@ class PatchWindow < PmWindow
   end
 
   def filter_string(filter)
-    filter.to_s.gsub(/\s*#.*/, '').gsub(/\n\s*/, "; ")
+    filter.to_s.gsub(/\s*#.*/, "").gsub(/\n\s*/, "; ")
   end
 
-end
 end

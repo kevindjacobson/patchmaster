@@ -1,11 +1,17 @@
 # A SongList is a list of Songs.
 class SongList
 
+  @name : String
+  @songs : Array(Song)
+
   property name, songs
 
-  def initialize(@name)
-    @name = name
+  def initialize(@name : String)
     @songs = [] of Song
+  end
+
+  def size
+    @songs.size
   end
 
   def <<(song)
@@ -16,26 +22,6 @@ class SongList
   # Regexp or a String. The match will be made case-insensitive.
   def find(name_regex)
     name_regex = Regexp.new(name_regex.to_s, true) # make case-insensitive
-    @songs.detect { |s| s.name =~ name_regex }
-  end
-
-  def first_pach
-    @songs.curr.first_patch
-  end
-
-  def prev_pach
-    @songs.curr.prev_patch
-  end
-
-  def curr_pach
-    @songs.curr.curr_patch
-  end
-
-  def next_pach
-    @songs.curr.next_patch
-  end
-
-  def last_pach
-    @songs.curr.last_patch
+    @songs.find { |s| s.name =~ name_regex }
   end
 end

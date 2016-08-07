@@ -1,18 +1,25 @@
-# A PM::Cursor knows the current PM::SongList, PM::Song, and PM::Patch, how
+# A Cursor knows the current SongList, Song, and Patch, how
 # to move between songs and patches, and how to find them given name
 # regexes.
 class Cursor
 
   property song_list, song, patch
 
-  def initialize(pm)
-    @pm = pm
-    clear
+  @song_list : SongList | SortedSongList
+  @song : Song
+  @patch : Patch
+
+  def initialize(@pm : PatchMaster)
+    @song_list = @pm.all_songs
+    @song = @pm.all_songs.size > 0 ? @pm.all_songs.first : Song.empty
+    @patch = @song.patches.first
   end
 
   # Set @song_list, @song, and @patch to +nil+.
   def clear
-    @song_list = @song = @patch = nil
+    @song_list = @pm.all_songs
+    @song = @pm.all_songs.first
+    @patch = @song.patches.first
     # Do not erase names saved by #mark.
   end
 
@@ -97,7 +104,7 @@ class Cursor
 
   def goto_song_list(name_regex)
     name_regex = Regexp.new(name_regex.to_s, true) # make case-insensitive
-    new_song_list = @pm.song_lists.detect { |song_list| song_list.name =~ name_regex }
+    new_song_list = @pm.song_lists.find { |song_list| song_list.name =~ name_regex }
     return unless new_song_list
 
     @song_list = new_song_list

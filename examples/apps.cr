@@ -3,8 +3,8 @@
 # First, you must open the Audo MIDI Setup application, enable IAC, and add
 # two more ports.
 
-input  1, :app_in, 'IAC-in'     # The first port you added
-output 2, :app_out, 'IAC-out'   # The second port you added
+input  1, :app_in, "IAC-in"     # The first port you added
+output 2, :app_out, "IAC-out"   # The second port you added
 
 def full_volume
   start_bytes [CONTROLLER, CC_VOLUME, 127]

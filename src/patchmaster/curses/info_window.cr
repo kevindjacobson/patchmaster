@@ -1,13 +1,10 @@
-require 'curses'
-
-module PM
 class InfoWindow < PmWindow
 
-  CONTENTS = File.join(File.dirname(__FILE__), 'info_window_contents.txt')
+  CONTENTS = File.join(File.dirname(__FILE__), "info_window_contents.txt")
 
   include Curses
 
-  attr_reader :text
+  property text                 # read-only
 
   def initialize(rows, cols, row, col)
     super(rows, cols, row, col, nil)
@@ -18,10 +15,10 @@ class InfoWindow < PmWindow
   def text=(str)
     if str
       @text = str
-      @title = 'Song Notes'
+      @title = "Song Notes"
     else
       @text = @info_text
-      @title = 'PatchMaster Help'
+      @title = "PatchMaster Help"
     end
   end
 
@@ -36,5 +33,4 @@ class InfoWindow < PmWindow
     end
   end
 
-end
 end

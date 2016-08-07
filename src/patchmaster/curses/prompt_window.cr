@@ -1,6 +1,3 @@
-require 'curses'
-
-module PM
 class PromptWindow
 
   MAX_WIDTH = 30
@@ -33,7 +30,7 @@ class PromptWindow
 
     @win.setpos(2, 1)
     @win.attron(A_REVERSE) {
-      @win.addstr(' ' * (@win.maxx() - 2))
+      @win.addstr(" " * (@win.maxx() - 2))
     }
 
     @win.setpos(2, 1)
@@ -57,5 +54,4 @@ class PromptWindow
   def cleanup
     @win.close
   end
-end
 end

@@ -1,18 +1,15 @@
-require 'curses'
-
-module PM
 class HelpWindow < PmWindow
 
-  CONTENTS = File.join(File.dirname(__FILE__), 'info_window_contents.txt')
+  CONTENTS = File.join(File.dirname(__FILE__), "info_window_contents.txt")
 
   include Curses
 
-  attr_reader :text
+  property text                 # read-only
 
   def initialize(rows, cols, row, col)
     super(rows, cols, row, col, nil)
     @text = IO.read(CONTENTS)
-    @title = 'PatchMaster Help'
+    @title = "PatchMaster Help"
   end
 
   def draw
@@ -25,5 +22,4 @@ class HelpWindow < PmWindow
     end
   end
 
-end
 end

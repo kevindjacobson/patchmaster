@@ -1,9 +1,12 @@
 class Patch
 
-  property name, connections, start_bytes, stop_bytes
+  property name, start_bytes, stop_bytes, connections
 
-  def initialize(name, start_bytes=nil, stop_bytes=nil)
-    @name, @start_bytes, @stop_bytes = name, start_bytes, stop_bytes
+  def self.empty
+    @@empty ||= Patch.new("Unnamed", [] of UInt8, [] of UInt8)
+  end
+
+  def initialize(@name : String, @start_bytes : Array(UInt8), @stop_bytes : Array(UInt8))
     @connections = [] of Connection
     @running = false
   end

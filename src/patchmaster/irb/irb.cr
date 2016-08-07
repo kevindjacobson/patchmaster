@@ -1,57 +1,49 @@
-require 'patchmaster'
-require 'irb'
-require 'tempfile'
-
 $dsl = nil
 
-module PM
-  class IRB
+class IRB
 
-    include Singleton
+  property dsl                  # read-only
 
-    attr_reader :dsl
+  def initialize
+    @dsl = DSL.new
+    @dsl.song("IRB Song")
+    @dsl.patch("IRB Patch")
+  end
 
-    def initialize
-      @dsl = PM::DSL.new
-      @dsl.song("IRB Song")
-      @dsl.patch("IRB Patch")
-    end
-
-    # For bin/patchmaster.
-    def run
-      ::IRB.start
-    end
+  # For bin/patchmaster.
+  def run
+    ::IRB.start
   end
 end
 
 def dsl
-  PM::IRB.instance.dsl
+  IRB.instance.dsl
 end
 
 # Return the current (only) patch.
 def patch
-  dsl.instance_variable_get(:@patch)
+  dsl.patch
 end
 
 # Stop and delete all connections.
 def clear
   patch.stop
-  patch.connections = []
+  patch.connections = [] of Connection
   patch.start
 end
 
 def pm_help
-  puts IO.read(File.join(File.dirname(__FILE__), 'irb_help.txt'))
+  puts IO.read(File.join(File.dirname(__FILE__), "irb_help.txt"))
 end
 
-# The "panic" command is handled by the PM::DSL instance. This version
+# The "panic" command is handled by the DSL instance. This version
 # (+panic!+) tells that +panic+ to send all all-notes-off messages.
 def panic!
-  PM::PatchMaster.instance.panic(true)
+  PatchMaster.instance.panic(true)
 end
 
 def method_missing(sym, *args)
-  pm = PM::PatchMaster.instance
+  pm = PatchMaster.instance
   if dsl.respond_to?(sym)
     patch.stop
     dsl.send(sym, *args)

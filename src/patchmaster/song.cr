@@ -3,8 +3,13 @@ class Song
 
   property name, patches, notes
 
-  def initialize(@name)
-    @patches = [] of Patch
+  def self.empty
+    @@empty ||= Song.new("Unnamed")
+  end
+
+  def initialize(@name : String)
+    @patches = [Patch.empty]
+    @notes = ""
     PatchMaster.instance.all_songs << self
   end
 

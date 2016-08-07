@@ -1,9 +1,6 @@
-require 'patchmaster/curses/pm_window'
-
-module PM
 class ListWindow < PmWindow
 
-  attr_reader :list
+  property list                 # read-only
 
   def initialize(rows, cols, row, col, title_prefix)
     super
@@ -11,7 +8,7 @@ class ListWindow < PmWindow
   end
 
  # +curr_item_method_sym+ is a method symbol that is sent to
-  # PM::PatchMaster to obtain the current item so we can highlight it.
+  # PatchMaster to obtain the current item so we can highlight it.
   def set_contents(title, list, curr_item_method_sym)
     @title, @list, @curr_item_method_sym = title, list, curr_item_method_sym
     draw
@@ -21,7 +18,7 @@ class ListWindow < PmWindow
     super
     return unless @list
 
-    curr_item = PM::PatchMaster.instance.send(@curr_item_method_sym)
+    curr_item = PatchMaster.instance.send(@curr_item_method_sym)
     return unless curr_item
 
     curr_index = @list.index(curr_item)
@@ -39,5 +36,4 @@ class ListWindow < PmWindow
     end
   end
 
-end
 end

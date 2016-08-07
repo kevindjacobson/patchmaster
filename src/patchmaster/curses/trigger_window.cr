@@ -1,18 +1,15 @@
-require 'curses'
-
-module PM
 class TriggerWindow < PmWindow
 
   include Curses
 
   def initialize(rows, cols, row, col)
     super(rows, cols, row, col, nil)
-    @title = 'Triggers '
+    @title = "Triggers "
   end
 
   def draw
     super
-    pm = PM::PatchMaster.instance
+    pm = PatchMaster.instance
     i = 0
     pm.inputs.each do |instrument|
       instrument.triggers.each do |trigger|
@@ -25,5 +22,3 @@ class TriggerWindow < PmWindow
     end
   end
 end
-end
-

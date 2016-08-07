@@ -1,5 +1,3 @@
-module PM
-
 # Defines positions and sizes of windows. Rects contain [height, width, top,
 # left], which is the order used by Curses::Window.new.
 class Geometry
@@ -49,5 +47,4 @@ class Geometry
   def help_rect
     [lines() - 6, cols() - 6, 3, 3]
   end
-end
 end

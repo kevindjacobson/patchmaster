@@ -62,19 +62,19 @@ rescue LoadError
   retry
 end
 
-pm = PM::PatchMaster.instance
+pm = PatchMaster.instance
 pm.use_midi = use_midi
 pm.load(ARGV[0]) if ARGV[0]
 case gui
 when :curses
   require "patchmaster/curses/main"
-  pm.gui = PM::Main.instance
+  pm.gui = Main.instance
 when :irb
   require "patchmaster/irb/irb"
-  pm.gui = PM::IRB.instance
+  pm.gui = IRB.instance
 when :web
   require "patchmaster/web/sinatra_app"
-  app = PM::SinatraApp.instance
+  app = SinatraApp.instance
   app.port = port if port
   pm.gui = app
 end

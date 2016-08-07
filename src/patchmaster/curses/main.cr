@@ -1,20 +1,10 @@
-require 'curses'
-require 'singleton'
-require 'patchmaster/curses/geometry'
-%w(list patch info trigger prompt help).each { |w| require "patchmaster/curses/#{w}_window" }
-
-module PM
-
 class Main
 
-  include Singleton
-  include Curses
-
-  FUNCTION_KEY_SYMBOLS = {}
-  12.times do |i|
-    FUNCTION_KEY_SYMBOLS["f#{i+1}".to_sym] = Key::F1 + i
-    FUNCTION_KEY_SYMBOLS["F#{i+1}".to_sym] = Key::F1 + i
-  end
+  FUNCTION_KEY_SYMBOLS = {} of Symbol => Char
+  # 12.times do |i|
+  #   FUNCTION_KEY_SYMBOLS[:"f#{i+1}"] = Key::F1 + i
+  #   FUNCTION_KEY_SYMBOLS[:"F#{i+1}"] = Key::F1 + i
+  # end
 
   def initialize
     @pm = PatchMaster.instance
@@ -30,7 +20,6 @@ class Main
         begin
           refresh_all
           ch = getch
-          message("ch = #{ch}") if $DEBUG
           case ch
           when 'j', Key::DOWN, ' '
             @pm.next_patch
@@ -41,14 +30,14 @@ class Main
           when 'p', Key::LEFT
             @pm.prev_song
           when 'g'
-            name = PromptWindow.new('Go To Song', 'Go to song:').gets
+            name = PromptWindow.new("Go To Song", "Go to song:").gets
             @pm.goto_song(name) if name.length > 0
           when 't'
-            name = PromptWindow.new('Go To Song List', 'Go to Song List:').gets
+            name = PromptWindow.new("Go To Song List", "Go to Song List:").gets
             @pm.goto_song_list(name) if name.length > 0
           when 'e'
             close_screen
-            file = @pm.loaded_file || PromptWindow.new('Edit', 'Edit file:').gets
+            file = @pm.loaded_file || PromptWindow.new("Edit", "Edit file:").gets
             edit(file) if file.length > 0
           when 'r'
             load(@pm.loaded_file) if @pm.loaded_file && @pm.loaded_file.length > 0
@@ -56,26 +45,26 @@ class Main
             help
           when 27        # "\e" doesn't work here
             # Twice in a row sends individual note-off commands
-            message('Sending panic note off messages...')
+            message("Sending panic note off messages...")
             @pm.panic(@prev_cmd == 27)
-            message('Panic sent')
+            message("Panic sent")
           when 'l'
-            file = PromptWindow.new('Load', 'Load file:').gets
+            file = PromptWindow.new("Load", "Load file:").gets
             if file.length > 0
               begin
                 load(file)
                 message("Loaded #{file}")
-              rescue => ex
+              rescue ex
                 message(ex.to_s)
               end
             end
           when 's'
-            file = PromptWindow.new('Save', 'Save into file:').gets
+            file = PromptWindow.new("Save", "Save into file:").gets
             if file.length > 0
               begin
                 save(file)
                 message("Saved #{file}")
-              rescue => ex
+              rescue ex
                 message(ex.to_s)
               end
             end
@@ -85,7 +74,7 @@ class Main
             resize_windows
           end
           @prev_cmd = ch
-        rescue => ex
+        rescue ex
           message(ex.to_s)
           @pm.debug caller.join("\n")
         end
@@ -113,12 +102,12 @@ class Main
   end
 
   def create_windows
-    g = PM::Geometry.new
+    g = Geometry.new
 
     @song_lists_win = ListWindow.new(*g.song_lists_rect, nil)
-    @song_list_win = ListWindow.new(*g.song_list_rect, 'Song List')
-    @song_win = ListWindow.new(*g.song_rect, 'Song')
-    @patch_win = PatchWindow.new(*g.patch_rect, 'Patch')
+    @song_list_win = ListWindow.new(*g.song_list_rect, "Song List")
+    @song_win = ListWindow.new(*g.song_rect, "Song")
+    @patch_win = PatchWindow.new(*g.patch_rect, "Patch")
     @message_win = Window.new(*g.message_rect)
     @trigger_win = TriggerWindow.new(*g.trigger_rect)
     @info_win = InfoWindow.new(*g.info_rect)
@@ -127,7 +116,7 @@ class Main
   end
 
   def resize_windows
-    g = PM::Geometry.new
+    g = Geometry.new
 
     @song_lists_win.move_and_resize(g.song_lists_rect)
     @song_list_win.move_and_resize(g.song_list_rect)
@@ -167,13 +156,13 @@ class Main
   # Return the first legit command from $VISUAL, $EDITOR, vim, vi, and
   # notepad.exe.
   def find_editor
-    @editor ||= [ENV['VISUAL'], ENV['EDITOR'], 'vim', 'vi', 'notepad.exe'].compact.detect do |cmd|
-      system('which', cmd) || File.exist?(cmd)
-    end
+    @editor ||= [ENV["VISUAL"], ENV["EDITOR"], "vim", "vi", "notepad.exe"].compact.find { |cmd|
+      system("which", cmd) || File.exist?(cmd)
+    }
   end
 
   def help
-    g = PM::Geometry.new
+    g = Geometry.new
     win = HelpWindow.new(*g.help_rect)
     win.draw
     win.refresh
@@ -205,7 +194,7 @@ class Main
   end
 
   def set_window_data
-    @song_lists_win.set_contents('Song Lists', @pm.song_lists, :song_list)
+    @song_lists_win.set_contents("Song Lists", @pm.song_lists, :song_list)
 
     song_list = @pm.song_list
     @song_list_win.set_contents(song_list.name, song_list.songs, :song)
@@ -223,5 +212,4 @@ class Main
     end
   end
 
-end
 end

@@ -1,5 +1,4 @@
-require "./sorted_song_list"
-require "./cursor"
+require "./web/web"
 
 # Global behavior: master list of songs, list of song lists, stuff like
 # that.
@@ -12,33 +11,34 @@ require "./cursor"
 #   PatchMaster.instance.stop
 class PatchMaster
 
-  DEBUG_FILE = "/tmp/pm_debug.txt"
+  @@patchmaster : PatchMaster = PatchMaster.new
 
-  property inputs, outputs, all_songs, song_lists    # read-only
-  property messages, message_bindings, code_bindings # read-only
-  property use_midi
-  # alias_method use_midi?, use_midi
-  property gui
-  property loaded_file          # read-only
+  @gui : (Main | IRB | Web | Nil)
+  @all_songs : SortedSongList
+  @cursor : Cursor = Cursor.new(@@patchmaster)
 
-  # A Cursor to which we delegate incoming position methods (#song_list,
-  # #song, #patch, #next_song, #prev_patch, etc.)
-  property :cursor              # read-only
+  property all_songs, use_midi
+
+  def self.instance
+    @@patchmaster
+  end
 
   def initialize
-    @running = false
-    @cursor = Cursor.new(self)
-    super(@cursor)
-    @use_midi = true
-    @gui = nil
+    @inputs = [] of InputInstrument
+    @outputs = [] of OutputInstrument
+    @all_songs = SortedSongList.new("All Songs")
+    @song_lists = [] of SongList
+    @messages = {} of String => Array(Int8)
     @message_bindings = {} of Char => String
     @code_bindings = {} of Char => CodeKey
+    @use_midi = true
+    @gui = nil
 
-    if $DEBUG
-      @debug_file = File.open(DEBUG_FILE, 'a')
-    end
+    @running = false
+  end
 
-    init_data
+  def init
+    @cursor = Cursor.new(self)
   end
 
   def no_gui!
@@ -84,9 +84,9 @@ class PatchMaster
   # Initializes the cursor and all data.
   def init_data
     @cursor.clear
-    @inputs = [] of PM::Instrument::InputInstrument
-    @outputs = [] of PM::Instrument::OutputInstrument
-    @song_lists = [] of PM::SongList
+    @inputs = [] of Instrument::InputInstrument
+    @outputs = [] of Instrument::OutputInstrument
+    @song_lists = [] of SongList
     @all_songs = SortedSongList.new("All Songs")
     @song_lists << @all_songs
     @messages = {} of Name => typeof([] of Int8)
@@ -103,12 +103,12 @@ class PatchMaster
 
   # Stop everything, including input instruments' MIDIEye listener threads.
   def stop
-    @cursor.patch.stop if @cursor.patch
+    @cursor.patch.stop
     @inputs.map(&:stop)
     @running = false
   end
 
-  # Run PatchMaster without the GUI. Don't use this when using PM::Main. If
+  # Run PatchMaster without the GUI. Don't use this when using Main. If
   # there is a GUI then forward this request to it. Otherwise, call #start,
   # wait for inputs' MIDIEye listener threads to finish, then call #stop.
   # Note that normally nothing stops those threads, so this is used as a way
@@ -137,7 +137,6 @@ class PatchMaster
       return
     end
 
-    debug("Sending message \"#{name}\"")
     @outputs.each { |out| out.midi_out(msg) }
 
     # If the user accidentally calls send_message in a filter at the end,
@@ -150,7 +149,6 @@ class PatchMaster
   # instruments on all 16 MIDI channels. If +individual_notes+ is +true+
   # send individual +NOTE_OFF+ messages to all notes as well.
   def panic(individual_notes=false)
-    debug("panic(#{individual_notes})")
     @outputs.each do |out|
       buf = [] of UInt8
       MIDI_CHANNELS.times do |chan|
@@ -161,17 +159,5 @@ class PatchMaster
       end
       out.midi_out(buf)
     end
-  end
-
-  # Output +str+ to @debug_file or $stderr.
-  def debug(str)
-    return unless $DEBUG
-    f = @debug_file || $stderr
-    f.puts str
-    f.flush
-  end
-
-  def close_debug_file
-    @debug_file.close if @debug_file
   end
 end

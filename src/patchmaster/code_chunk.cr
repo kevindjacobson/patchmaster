@@ -12,6 +12,6 @@ class CodeChunk
   end
 
   def to_s
-    "#<PM::CodeChunk block=#{block.inspect}, text=#{text.inspect}>"
+    "#<CodeChunk block=#{block.inspect}, text=#{text.inspect}>"
   end
 end

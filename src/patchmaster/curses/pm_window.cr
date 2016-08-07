@@ -1,13 +1,10 @@
-require 'curses'
-require 'delegate'
-
 module PM
 class PmWindow < SimpleDelegator
 
   include Curses
 
-  attr_reader :win, :title_prefix
-  attr_accessor :title
+  property win, title_prefix    # read_only
+  property title
 
   # If title is nil then list's name will be used
   def initialize(rows, cols, row, col, title_prefix)

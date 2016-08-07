@@ -12,8 +12,8 @@ class DSL
 
   # Initialize state used for reading.
   def init
-    @inputs = [] of PM::Instrument::InputInstrument
-    @outputs = [] of PM::Instrument::OutputInstrument
+    @inputs = [] of Instrument::InputInstrument
+    @outputs = [] of Instrument::OutputInstrument
     @triggers = [] of Trigger
     @filters = [] of Filter
     @code_keys = [] of CodeKey
@@ -192,7 +192,7 @@ class DSL
   # ****************************************************************
 
   def save(file)
-    File.open(file, 'w') { |f|
+    File.open(file, "w") { |f|
       save_instruments(f)
       save_messages(f)
       save_message_keys(f)
@@ -288,16 +288,16 @@ class DSL
 
   # Translate symbol like :f1 to the proper function key value.
   private def to_binding_key(key_or_sym)
-    if key_or_sym.is_a?(Symbol) && PM::Main::FUNCTION_KEY_SYMBOLS[key_or_sym]
-      key_or_sym = PM::Main::FUNCTION_KEY_SYMBOLS[key_or_sym]
+    if key_or_sym.is_a?(Symbol) && Main::FUNCTION_KEY_SYMBOLS[key_or_sym]
+      key_or_sym = Main::FUNCTION_KEY_SYMBOLS[key_or_sym]
     end
   end
 
   # Translate function key values into symbol strings and other keys into
   # double-quoted strings.
   private def to_save_key(key)
-    if PM::Main::FUNCTION_KEY_SYMBOLS.value?(key)
-      PM::Main::FUNCTION_KEY_SYMBOLS.key(key)
+    if Main::FUNCTION_KEY_SYMBOLS.value?(key)
+      Main::FUNCTION_KEY_SYMBOLS.key(key)
     else
       key
     end

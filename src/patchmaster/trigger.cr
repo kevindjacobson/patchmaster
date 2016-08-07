@@ -11,13 +11,13 @@ class Trigger
   end
 
   def method_missing(sym, *args)
-    PM::PatchMaster.instance.send(sym, *args)
+    PatchMaster.instance.send(sym, *args)
   end
 
   # If +bytes+ matches our +@bytes+ array then run +@code_chunk+.
   def signal(bytes)
     if bytes == @bytes
-      pm = PM::PatchMaster.instance
+      pm = PatchMaster.instance
       @code_chunk.run(pm)
       pm.gui.refresh if pm.gui
     end
